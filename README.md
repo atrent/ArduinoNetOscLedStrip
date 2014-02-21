@@ -4,7 +4,7 @@ ArduinoNetOscLedStrip
 
 Put together these Arduino libraries:
 
-- ethernet (https://github.com/jcw/ethercard.git)
+- ethernet (https://github.com/jcw/ethercard.git), article: http://www.komputer.de/wordpress/archives/497 [*]
 - osc
 - ledstrip (Adafruit_WS2801)
 
@@ -17,6 +17,6 @@ To create a ledstrip controlled from the local.net (or Internet), to drive diffe
 
 
 Notes:
-+ remember to set pin 10 in ether.begin
++ [*] remember to set pin 10 in ether.begin
 + maybe [Arduino OSC](http://www.deadpixel.ca/arduino-osc/)
 might be a good choice for managing OSC msg's.
