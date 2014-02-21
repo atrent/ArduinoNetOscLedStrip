@@ -4,7 +4,7 @@ ArduinoNetOscLedStrip
 
 Put together these Arduino libraries:
 
-- ethernet
+- ethernet (https://github.com/jcw/ethercard.git)
 - osc
 - ledstrip (Adafruit_WS2801)
 
