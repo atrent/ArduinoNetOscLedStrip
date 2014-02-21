@@ -1,13 +1,13 @@
 #include "SPI.h"
 #include "Adafruit_WS2801.h"
+#include <EtherCard.h>
 
+#define REQUEST_RATE 5000 // milliseconds
 
 // ORA E' UN MEGAMELANGE!!! va ripulito!!!
-
-
 // MANCA OSC
 
-
+///////VARIOUS COPYRIGHTS & CREDITS FROM PASTED CODE///////////////////////////
 /*****************************************************************************
 Example sketch for driving Adafruit WS2801 pixels!
 
@@ -29,36 +29,24 @@ Example sketch for driving Adafruit WS2801 pixels!
   BSD license, all text above must be included in any redistribution
 
 *****************************************************************************/
-
-
-
 // This demo does web requests via DHCP and DNS lookup.
 // 2011-07-05 <jc@wippler.nl> http://opensource.org/licenses/mit-license.php
-
-#include <EtherCard.h>
-
-#define REQUEST_RATE 5000 // milliseconds
+///////////////////////////////////////////////////////////////////////////////
 
 // ethernet interface mac address
 static byte mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
 // remote website name
 char website[] PROGMEM = "google.com";
-
 byte Ethernet::buffer[700];
 static long timer;
-
-
-
 
 
 // Choose which 2 pins you will use for output.
 // Can be any valid output pins.
 // The colors of the wires may be totally different so
 // BE SURE TO CHECK YOUR PIXELS TO SEE WHICH WIRES TO USE!
-
 uint8_t dataPin  = 2;    // Yellow wire on Adafruit Pixels
 uint8_t clockPin = 3;    // Green wire on Adafruit Pixels
-
 //uint8_t dataPin  = 3;    // Yellow wire on Adafruit Pixels
 //uint8_t clockPin = 2;    // Green wire on Adafruit Pixels
 
@@ -67,6 +55,7 @@ uint8_t clockPin = 3;    // Green wire on Adafruit Pixels
 
 // Set the first variable to the NUMBER of pixels. 25 = 25 pixels in a row
 Adafruit_WS2801 strip = Adafruit_WS2801(17, dataPin, clockPin);
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 // Optional: leave off pin numbers to use hardware SPI
 // (pinout is then specific to each board and can't be changed)
@@ -82,25 +71,18 @@ Adafruit_WS2801 strip = Adafruit_WS2801(17, dataPin, clockPin);
 //Adafruit_WS2801 strip = Adafruit_WS2801(25, WS2801_GRB);
 
 void setup() {
-    
-  strip.begin();
+  Serial.begin(115200);
 
+  strip.begin();
   // Update LED contents, to start they are all 'off'
   strip.show();
   
-  Serial.begin(9600);
-
   //strip.setPixelColor(1, Color(0,0,255));
   //strip.show();   // write all the pixels out
   
-  pinMode(13, OUTPUT);           // set pin to output
-
-
-
-
+  //pinMode(13, OUTPUT);           // set pin to output
 
 /////////////////////////////////////
-  Serial.begin(57600);
   Serial.println("\n[getDHCPandDNS]");
   
   if (ether.begin(sizeof Ethernet::buffer, mymac,10) == 0) 
@@ -120,8 +102,6 @@ void setup() {
   ether.printIp("Server: ", ether.hisip);
   
   timer = - REQUEST_RATE; // start timing out right away
-
-
 }
 
 
@@ -136,6 +116,7 @@ void loop() {
   colorWipe(Color(255, 0, 0), 50);
   digitalWrite(13, LOW);
 
+  /*
   Serial.println("loop1");
   colorWipe(Color(0, 255, 0), 50);
   Serial.println("loop2");
@@ -148,10 +129,7 @@ void loop() {
   digitalWrite(13, LOW);
 
   delay(100);
-
-
-
-
+  */
 
 //////// rete    
   ether.packetLoop(ether.packetReceive());
@@ -165,6 +143,9 @@ void loop() {
 
 
 }
+
+////////////da qui in poi decidere cosa tenere...
+
 
 void rainbow(uint8_t wait) {
   int i, j;
