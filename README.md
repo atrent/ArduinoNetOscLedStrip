@@ -18,5 +18,7 @@ To create a ledstrip controlled from the local.net (or Internet), to drive diffe
 
 Notes:
 + [*] remember to set pin 10 in ether.begin
-+ maybe [Arduino OSC](http://www.deadpixel.ca/arduino-osc/)
++ maybe Arduino OSC 
 might be a good choice for managing OSC msg's.
+    + http://cnmat.berkeley.edu/oscuino
+    + (fork) http://www.deadpixel.ca/arduino-osc/
