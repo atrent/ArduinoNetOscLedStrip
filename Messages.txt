@@ -1,0 +1,52 @@
+Messaggi OSC che intendiamo gestire, con azione corrispondente
+
+Sintassi:
+	/msg
+		#par1
+		#par2
+		...
+		#parN
+
+====================================
+Attiva un singolo led della striscia
+
+	/single_led
+		#NUMLED
+		#R
+		#G
+		#B
+
+====================================
+Spegne tutto
+
+	/off
+
+====================================
+Attiva tutti i led della striscia
+
+	/all
+		#R
+		#G
+		#B
+
+====================================
+Pulsa da inizio a fine
+
+parte da inizio striscia, aumenta (o diminuisce) rgb di incremento fino ad arrivare in fondo
+
+	/ping_frw
+		#R
+		#G
+		#B
+		#INCR
+
+====================================
+Pulsa da fine a inizio
+
+parte da fine striscia, aumenta (o diminuisce) rgb di incremento fino ad arrivare all'inizio
+
+	/ping_rev
+		#R
+		#G
+		#B
+		#INCR

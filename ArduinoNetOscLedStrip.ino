@@ -5,6 +5,8 @@
 // ORA E' UN MEGAMELANGE!!! va ripulito!!!
 
 
+// MANCA OSC
+
 
 /*****************************************************************************
 Example sketch for driving Adafruit WS2801 pixels!
