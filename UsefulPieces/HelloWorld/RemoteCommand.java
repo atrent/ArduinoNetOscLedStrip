@@ -14,7 +14,10 @@ public class RemoteCommand {
 
         for(int col=1; col<=3; col++) {
             for(int i=0; i<MAX; i+=51) {
+                
                 // Get the OSC message ready ...
+                
+                // Pixel-index is args[0] ...
                 args[0] = new Integer(0);
                 // Init the level of red here ...
                 args[1] = new Integer(0);
