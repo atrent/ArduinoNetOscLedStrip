@@ -1,8 +1,8 @@
 // Code large inspired by the udpListener.ino sketch
-// you can find in his library "EtherCard"
+// you can find in library "EtherCard" by Brian Lee.
 //
 // Most of the code here has been written by
-// Brian Lee <cybexsoft@hotmail.com> in 2013-4-7
+// him <cybexsoft@hotmail.com>, in 2013-4-7
 
 #include <EtherCard.h>
 #include <IPAddress.h>
