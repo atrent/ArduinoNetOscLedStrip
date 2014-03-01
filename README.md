@@ -19,12 +19,12 @@ home power consumption too high, etc.)
 
 ## TODO list
 
-+ Making arduino able to receive UDP
-packets.
-+ Writing (say, stealing) an OSC interpreter
-for the controller.
-+ Writing an interface between the OSC interpreter
-and the ledstrip controller.
+`udpListener`, among the examples, already contains
+a (working) implementation of UDP packets readers.
+
+Once _include_d the `OSCMessage.h` it should
+be easy parsing the data part (?) of the received
+UDP packet.
 
 ## DOTO list
 
