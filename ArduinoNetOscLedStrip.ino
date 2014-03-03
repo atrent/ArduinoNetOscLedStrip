@@ -1,232 +1,170 @@
-#include "SPI.h"
-#include "Adafruit_WS2801.h"
+// Credits to Brian Lee <cybexsoft@hotmail.com>
+
 #include <EtherCard.h>
+#include <IPAddress.h>
 
-#define REQUEST_RATE 5000 // milliseconds
+#include <OSCMessage.h>
+#include <OSCBundle.h>
 
-// ORA E' UN MEGAMELANGE!!! va ripulito!!!
-// MANCA OSC
+/* Network-unique MAC address for the ENC28J60 controller */
+static byte mymac[] = { 0x70,0x69,0x69,0x2D,0x30,0x31 };
 
-///////VARIOUS COPYRIGHTS & CREDITS FROM PASTED CODE///////////////////////////
-/*****************************************************************************
-Example sketch for driving Adafruit WS2801 pixels!
+/* TCP/IP send/receive buffer */
+byte Ethernet::buffer[500];
 
+/* Defining a constant for a LED. Maybe useful on testing */
+const unsigned int led=7;
 
-  Designed specifically to work with the Adafruit RGB Pixels!
-  12mm Bullet shape ----> https://www.adafruit.com/products/322
-  12mm Flat shape   ----> https://www.adafruit.com/products/738
-  36mm Square shape ----> https://www.adafruit.com/products/683
+/* Callback that prints received packets to the serial port */
+void udpSerialPrint(word port, byte ip[4], const char *data, word len) {
+  IPAddress src(ip[0], ip[1], ip[2], ip[3]);
+  Serial.println(src);
+  Serial.println(port);
+  Serial.println(data);
+  Serial.println(len);
+}
 
-  These pixels use SPI to transmit the color data, and have built in
-  high speed PWM drivers for 24 bit color per pixel
-  2 pins are required to interface
+/* Callback that changes state of a led depending on the received OSC message */
+void udptoGPIO(word port, byte ip[4], const char *data, word len) {
 
-  Adafruit invests time and resources providing this open source code, 
-  please support Adafruit and open-source hardware by purchasing 
-  products from Adafruit!
+// a occhio:
+// - ip e' indirizzo IP del mittente, NON il data ;)
+// - data e' data
 
-  Written by Limor Fried/Ladyada for Adafruit Industries.  
-  BSD license, all text above must be included in any redistribution
+  // Local debug here
+  Serial.print("Content of datagram: ");
+  Serial.println(data);
+  Serial.print("Its length: ");
+  Serial.println(len);
 
-*****************************************************************************/
-// This demo does web requests via DHCP and DNS lookup.
-// 2011-07-05 <jc@wippler.nl> http://opensource.org/licenses/mit-license.php
-///////////////////////////////////////////////////////////////////////////////
-
-// ethernet interface mac address
-static byte mymac[] = { 0x74,0x69,0x69,0x2D,0x30,0x31 };
-// remote website name
-char website[] PROGMEM = "google.com";
-byte Ethernet::buffer[700];
-static long timer;
-
-
-// Choose which 2 pins you will use for output.
-// Can be any valid output pins.
-// The colors of the wires may be totally different so
-// BE SURE TO CHECK YOUR PIXELS TO SEE WHICH WIRES TO USE!
-uint8_t dataPin  = 2;    // Yellow wire on Adafruit Pixels
-uint8_t clockPin = 3;    // Green wire on Adafruit Pixels
-//uint8_t dataPin  = 3;    // Yellow wire on Adafruit Pixels
-//uint8_t clockPin = 2;    // Green wire on Adafruit Pixels
-
-// Don't forget to connect the ground wire to Arduino ground,
-// and the +5V wire to a +5V supply
-
-// Set the first variable to the NUMBER of pixels. 25 = 25 pixels in a row
-Adafruit_WS2801 strip = Adafruit_WS2801(17, dataPin, clockPin);
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-// Optional: leave off pin numbers to use hardware SPI
-// (pinout is then specific to each board and can't be changed)
-//Adafruit_WS2801 strip = Adafruit_WS2801(25);
-
-// For 36mm LED pixels: these pixels internally represent color in a
-// different format.  Either of the above constructors can accept an
-// optional extra parameter: WS2801_RGB is 'conventional' RGB order
-// WS2801_GRB is the GRB order required by the 36mm pixels.  Other
-// than this parameter, your code does not need to do anything different;
-// the library will handle the format change.  Examples:
-//Adafruit_WS2801 strip = Adafruit_WS2801(25, dataPin, clockPin, WS2801_GRB);
-//Adafruit_WS2801 strip = Adafruit_WS2801(25, WS2801_GRB);
-
-void setup() {
-  Serial.begin(115200);
-
-  strip.begin();
-  // Update LED contents, to start they are all 'off'
-  strip.show();
+  OSCMessage msg("/led"); // a questo punto perche' inizializzarlo se tanto lo riempi subito dopo?
+  // sono obbligato. OSCMessage() vuole l'address
+  // come argomento.
+  // OK
   
-  //strip.setPixelColor(1, Color(0,0,255));
-  //strip.show();   // write all the pixels out
+  // Sospetti msg venga riempito come
+  // /led/led/on ?
+  // non so, se lo stampi dopo cosa viene?
+  // Roba poco leggibile -- a parte l'address
+  // mentre prima era leggibile?
+  // no, neanche udpSerialPrint() -- che
+  // era gia' scritta dall'autore -- riusciva
+  // a stampare correttamente il contenuto
+  // del messaggio (a parte l'address).
+  // OK
+  // Tuttavia, i dati numerici nel messaggio
+  // riesci a 'retrieve'arli.
+  // ok, a questo punto prova con un match invece di fullmatch e vedi che ti butta fuori (un int)
+  // Si, sempre zero.
+  // Sia cercando match con "/led/on", "/led/led/on",
+  // "/*/on", etc...
+  // getAddress cosa ti dice?
+  // Cacchio, non ho provato -- e sono in Comelico, non ho lan.
+  // ok
   
-  //pinMode(13, OUTPUT);           // set pin to output
+  
+  // BTW poi lascia tutti questi commenti anche nel git che magari ci servono
+  // ok
+  
+  
+  // per curiosita' prova a compilare e testare l'esempio di Brianza:
+  // https://github.com/cylinderlight/Flavin/blob/master/CylinderLightFlavin/CylinderLightFlavin.ino
+  // eventualmente togliendo la roba SPI
+  // ok, provo.
 
-/////////////////////////////////////
-  Serial.println("\n[getDHCPandDNS]");
+  msg.fill((uint8_t*)data, len);
+
+// quindi qui se devi "riempire" con qualcosa riempi con 'data'
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // ... Hudio. Aspetta, qui c'e' un errore di
+  // 'cut+paste'. Il codice era
+  // msg.fill((uint8_t)data, len);
+  // ;)
+  // ... ma anche cosi' non funzionava.
+  // Guarda, sono ""sicuro"" che il msg viene riempito,
+  // perche' se nel messsaggio vado ad appendere
+  // un intero, o un float, riesco poi a recuperarlo
+  // da questo sketch, usando msg.getInt() -- o ...getFloat()
+  // OK
   
-  if (ether.begin(sizeof Ethernet::buffer, mymac,10) == 0) 
+  // avevi guardato questo? https://github.com/cylinderlight/Flavin/blob/master/CylinderLightFlavin/CylinderLightFlavin.ino
+  
+  // no. Provo a scorrere velocemente
+  
+  // avevo messo i link nel github, sono i sorgenti degli esempi di Marco Brianza
+  
+  // il cuore: Udp.read(packetBuffer,s);
+  
+  // ah! ...magari potessi usare EthernetUDP pero'! // non si puo'?
+  // Alla fine avevo abbandonato ... Sto cercando
+  // di ricordarmi perche'. 
+  // OK
+  // Di sicuro la libreria per l'ENC28J60 andava
+  // modificata, altrimenti non riuscivo a compilare
+  // nulla.
+  // modificata come? (a parte un parametro che avevo segnalato, il pin sbagliato)
+  // sei sicuro sia sbagliato?
+  // o cambi il sorgente o cambi il cavetto ;)
+  // http://jeelabs.net/pub/docs/ethercard/classENC28J60.html
+  // initialize non usa di default il pin8 ...? appunto, ho messo il 10 nel sorgente perche' il cablaggio che avevo trovato usava il 10
+  // Comunque non era quello il problema.
+  // ok
+  // Ti apro sempre in darkstar il sorgente
+  // della libreria Ethercard
+  // OK, cosa devo guardare?
+
+  /* If OSC message contains "on", then switch the led on */
+  /*
+  if (msg.fullmatch("/led/on")) {
+    digitalWrite(led, HIGH);
+  }
+  */
+  
+  /*
+  bool fullMatch(const char * pattern, int addressOffset = 0);
+Returns true only if the OSCMessage’s address is a full match of the pattern. Optionally takes a the address offset as an argument which is the starting position in the address to match from.
+
+int match(const char * pattern, int addressOffset = 0);
+Similar to fullMatch, but instead returns the number of address characters matched by the pattern. Returns 0 if there was no match or the match did not terminate at the end of the address or at a ‘/’.
+  */
+    
+}
+
+void setup(){
+  Serial.begin(57600);
+  Serial.println("\n[backSoon]");
+  
+  if (ether.begin(sizeof Ethernet::buffer, mymac) == 0)
     Serial.println( "Failed to access Ethernet controller");
 
-  Serial.println("getting IP");
   if (!ether.dhcpSetup())
     Serial.println("DHCP failed");
-  
-  ether.printIp("My IP: ", ether.myip);
-  // ether.printIp("Netmask: ", ether.mymask);
-  ether.printIp("GW IP: ", ether.gwip);
-  ether.printIp("DNS IP: ", ether.dnsip);
 
-  if (!ether.dnsLookup(website))
-    Serial.println("DNS failed");
-  ether.printIp("Server: ", ether.hisip);
+  ether.printIp("IP:  ", ether.myip);
+  ether.printIp("GW:  ", ether.gwip);
+  ether.printIp("DNS: ", ether.dnsip);
+
+  /* Register udpSerialPrint() to port 1337 */
+  ether.udpServerListenOnPort(&udpSerialPrint, 1337);
+
+  /* Setup GPIO stuff ...*/
+  pinMode(led, OUTPUT);
+
+  /* ... and register udptoGPIO() to port 8888 */
+  ether.udpServerListenOnPort(&udptoGPIO, 8888);  // registering "interrupt"
+  // cioe'? e' una funzione di risposta interrupt, viene chiamata quando ci sono dati immagino
+  // si
+  // hai verificato che venga chiamata?
+  // si
+  // Non solo. I parametri vengono anche effettivamente
+  // 'riempiti'. Il buffer 'data' *non* e' vuoto.
+  // Vedi EtherCard.h, linea 41
   
-  timer = - REQUEST_RATE; // start timing out right away
+  // OK, forse ho trovato errore, torna su e seguimi ;)
+  // ok
 }
 
-
-void loop() {
-
-  digitalWrite(13, HIGH);   
-
-  // Some example procedures showing how to display to the pixels
-  
-
-  Serial.println("loop0");
-  colorWipe(Color(255, 0, 0), 50);
-  digitalWrite(13, LOW);
-
-  /*
-  Serial.println("loop1");
-  colorWipe(Color(0, 255, 0), 50);
-  Serial.println("loop2");
-  colorWipe(Color(0, 0, 255), 50);
-  Serial.println("loop3");
-  rainbow(2);
-  Serial.println("loop4");
-  rainbowCycle(2);
-
-  digitalWrite(13, LOW);
-
-  delay(100);
-  */
-
-//////// rete    
+void loop(){
+  /* This MUST be called for ethercard functions to work */
   ether.packetLoop(ether.packetReceive());
-  
-  if (millis() > timer + REQUEST_RATE) {
-    timer = millis();
-    Serial.println("\n>>> REQ");
-    ether.browseUrl(PSTR("/foo/"), "bar", website, my_result_cb);
-  }
-
-
-
-}
-
-////////////da qui in poi decidere cosa tenere...
-
-
-void rainbow(uint8_t wait) {
-  int i, j;
-   
-  for (j=0; j < 256; j++) {     // 3 cycles of all 256 colors in the wheel
-    for (i=0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, Wheel( (i + j) % 255));
-    }  
-    strip.show();   // write all the pixels out
-    delay(wait);
-  }
-}
-
-// Slightly different, this one makes the rainbow wheel equally distributed 
-// along the chain
-void rainbowCycle(uint8_t wait) {
-  int i, j;
-  
-  for (j=0; j < 256 * 5; j++) {     // 5 cycles of all 25 colors in the wheel
-    for (i=0; i < strip.numPixels(); i++) {
-      // tricky math! we use each pixel as a fraction of the full 96-color wheel
-      // (thats the i / strip.numPixels() part)
-      // Then add in j which makes the colors go around per pixel
-      // the % 96 is to make the wheel cycle around
-      strip.setPixelColor(i, Wheel( ((i * 256 / strip.numPixels()) + j) % 256) );
-    }  
-    strip.show();   // write all the pixels out
-    delay(wait);
-  }
-}
-
-// fill the dots one after the other with said color
-// good for testing purposes
-void colorWipe(uint32_t c, uint8_t wait) {
-  int i;
-  
-  for (i=0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, c);
-      strip.show();
-      delay(wait);
-  }
-}
-
-/* Helper functions */
-
-// Create a 24 bit color value from R,G,B
-uint32_t Color(byte r, byte g, byte b)
-{
-  uint32_t c;
-  c = r;
-  c <<= 8;
-  c |= g;
-  c <<= 8;
-  c |= b;
-  return c;
-}
-
-//Input a value 0 to 255 to get a color value.
-//The colours are a transition r - g -b - back to r
-uint32_t Wheel(byte WheelPos)
-{
-  if (WheelPos < 85) {
-   return Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-  } else if (WheelPos < 170) {
-   WheelPos -= 85;
-   return Color(255 - WheelPos * 3, 0, WheelPos * 3);
-  } else {
-   WheelPos -= 170; 
-   return Color(0, WheelPos * 3, 255 - WheelPos * 3);
-  }
-}
-
-
-
-
-
-
-// called when the client request is complete
-static void my_result_cb (byte status, word off, word len) {
-  Serial.print("<<< reply ");
-  Serial.print(millis() - timer);
-  Serial.println(" ms");
-  Serial.println((const char*) Ethernet::buffer + off);
-}
+} //ah 
