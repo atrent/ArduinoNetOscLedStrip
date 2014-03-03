@@ -38,6 +38,9 @@ Check Brianza's code:
 
 + https://github.com/cylinderlight/udp2serial
 + https://github.com/cylinderlight/Flavin
++ 
+
+Check OSC spec [here](http://opensoundcontrol.org/spec-1_0)
 
 
 
