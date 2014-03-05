@@ -82,7 +82,7 @@ void udptoStripled(word port, byte ip[4], const char *data, word len) {
         /* Checking correct sintax */
 	//...
 	
-	/* If sintax check fail, print an error msg and return */
+	/* If syntax check fails, print an error msg and return */
 	//...
 	
 	/* else, fill msg and update strip */
