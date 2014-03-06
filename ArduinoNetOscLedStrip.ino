@@ -144,6 +144,9 @@ void setup(){
   /* Setup GPIO stuff ... */
   pinMode(led, OUTPUT);
 
+
+// forse per il finale farei una sola registrazione di una funzione che dispatcha, a meno che non si possano (ma non credo) agganciare piu' funzioni allo stesso interrupt (porta)
+
   /* ... and register udptoGPIO() to port 8888 */
   ether.udpServerListenOnPort(&udptoGPIO, 8888);
 
@@ -158,4 +161,6 @@ void setup(){
 void loop(){
   /* This MUST be called for ethercard functions to work */
   ether.packetLoop(ether.packetReceive());
+  
+  // un delay?
 }
