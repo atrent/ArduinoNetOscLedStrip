@@ -2,7 +2,7 @@
 
 ## Course, you need to use the liblo library
 ## for making this script working ...
-## 
+## http://liblo.sourceforge.net/
 
 while
  true
