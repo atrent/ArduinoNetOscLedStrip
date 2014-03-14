@@ -30,8 +30,7 @@ const int length = 3;
 Adafruit_WS2801 strip = Adafruit_WS2801(length, dataPin, clockPin);
 
 /* This function return a 24bit color value from parameters r, g and b */
-uint32_t Color(byte r, byte g, byte b)
-{
+uint32_t Color(byte r, byte g, byte b) {
   uint32_t c;
   c = r;
   c <<= 8;
@@ -161,6 +160,7 @@ void setup(){
 void loop(){
   /* This MUST be called for ethercard functions to work */
   ether.packetLoop(ether.packetReceive());
-  
-  // un delay?
+
+  /* Due to the speed of Arduino, we always feel better if we loop */  
+  delay(100);
 }
